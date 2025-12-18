@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { OBJExporter } from 'three/examples/jsm/exporters/OBJExporter.js';
 import GUI from 'lil-gui';
-import { buildBlade, thicken, buildBladeSimple, NACA } from './naca';
+import { NACA } from './naca';
 import nacaDatList from './naca-dat-files';
 
 const scene = new THREE.Scene();
@@ -93,6 +93,7 @@ const config = {
   exportOBJ,
   viewOBJ,
   screenshot,
+  exportDAT,
   
 };
 
@@ -139,13 +140,14 @@ const exportOpts = gui.addFolder( 'Export' );
 exportOpts.add( config, 'exportOBJ' ).name( 'Export OBJ' );
 exportOpts.add( config, 'viewOBJ' ).name( 'View OBJ' );
 exportOpts.add( config, 'screenshot' ).name( 'Screenshot' );
+exportOpts.add( config, 'exportDAT' ).name( 'Export DAT' );
 
-gui.onFinishChange( function ( event ) {
+gui.onFinishChange( function ( event ): void {
   saveGuiState();
   create();
 } );
 
-function loadGuiState() {
+function loadGuiState(): void {
   if ( window.history.state ) {
     gui.load( window.history.state );
   } else if ( window.location.hash ) {
@@ -176,41 +178,47 @@ function saveGuiState(): void {
   }
 }
 
-function resetGuiState() {
+function resetGuiState(): void {
   gui.reset();
 }
 
 THREE.Cache.enabled = true;
 const loader = new THREE.FileLoader();
 
+function parseNacaDat( data: string ): THREE.Vector2[] {
+  const lines = data.split( '\n' );
+    const points = [];
+
+    for ( let i = 1; i < lines.length; i++ ) {
+      const line = lines[i].trim();
+
+      if ( line === '' ) {
+        continue;
+      }
+
+      const parts = line.split( /\s+/ );
+
+      if ( parts.length < 2 ) {
+        continue;
+      }
+
+      const x = parseFloat( parts[0] );
+      const y = parseFloat( parts[1] );
+
+      if ( isNaN( x ) || isNaN( y ) ) {
+        continue;
+      }
+
+      points.push( new THREE.Vector2( x, y ) );
+    }
+
+    return points;
+}
+
 async function load( naca: string ): Promise<THREE.Vector2[]> {
   return new Promise( ( resolve, reject ) => {
     loader.load(`airfoils/${naca}.dat`, function ( data: string ) {
-      const lines = data.split( '\n' );
-      const points = [];
-
-      for ( let i = 1; i < lines.length; i++ ) {
-        const line = lines[i].trim();
-
-        if ( line === '' ) {
-          continue;
-        }
-
-        const parts = line.split( /\s+/ );
-        
-        if ( parts.length < 2 ) {
-          continue;
-        }
-
-        const x = parseFloat( parts[0] );
-        const y = parseFloat( parts[1] );
-        
-        if ( isNaN( x ) || isNaN( y ) ) {
-          continue;
-        }
-
-        points.push( new THREE.Vector2( x, y ) );
-      }
+      const points = parseNacaDat( data );
 
       resolve( points );
     } );
@@ -284,8 +292,7 @@ function extrudeWithTwist( shape: THREE.Shape, span: number, twist: number, step
   return geom;
 }
 
-function scaleAlongZ( geometry: THREE.ExtrudeGeometry, rootScale: number, tipScale: number ): THREE.ExtrudeGeometry
-{
+function scaleAlongZ( geometry: THREE.ExtrudeGeometry, rootScale: number, tipScale: number ): THREE.ExtrudeGeometry {
   const position = geometry.attributes.position;
 
   geometry.computeBoundingBox();
@@ -310,7 +317,7 @@ function scaleAlongZ( geometry: THREE.ExtrudeGeometry, rootScale: number, tipSca
   return geometry;
 }
 
-function createFromPoints( points: THREE.Vector2[] ) {
+function createFromPoints( points: THREE.Vector2[] ): void {
   clearGroup( meshGroup );
 
   const shape = new THREE.Shape( points );
@@ -377,8 +384,8 @@ function createFromPoints( points: THREE.Vector2[] ) {
   grid.visible = axes.visible = config.drawGrid;
 }
 
-function createFromNacaCode() {
-  const air = NACA( config.naca, {
+function createFromNacaCode(): void {
+  const air = NACA( Number.parseInt(config.naca), {
     c: config.chord,
     s: config.sections,
     cs: config.spacing === 'linear' ? 0 : 1,
@@ -394,14 +401,14 @@ function createFromNacaCode() {
   
   pi.reverse(); // inner points need to go from TE to LE
 
-  return createFromPoints( pe.concat( pi ) );
+  createFromPoints( pe.concat( pi ) );
 }
 
-async function createFromNacaDat( nacaDat: string ) {
-  return createFromPoints( await load( nacaDat ) );
+async function createFromNacaDat( nacaDat: string ): Promise<void> {
+  createFromPoints( await load( nacaDat ) );
 }
 
-function create() {
+function create(): void {
   if ( config.createFromDat && config.nacaDat ) {
     createFromNacaDat( config.nacaDat );
   } else {
@@ -413,16 +420,16 @@ loadGuiState();
 
 create();
 
-function animate() {
+function animate(): void {
   renderer.render( scene, camera );
 }
 
-function exportOBJ() {
+function exportOBJ(): void {
   const filename = config.createFromDat ? config.nacaDat.replace( '.dat', '.obj' ) : `naca${config.naca}.obj`;
   save( createOBJBlobURL(), filename );
 }
 
-function viewOBJ() {
+function viewOBJ(): void {
   window.open( createOBJBlobURL(), '_blank' );
 }
 
@@ -435,14 +442,14 @@ function createOBJBlobURL(): string  {
   return URL.createObjectURL( blob );
 }
 
-function save( url: string, filename: string ) {
+function save( url: string, filename: string ): void {
   const link = document.createElement( 'a' );
   link.href = url;
   link.download = filename;
   link.click();
 }
 
-function screenshot() {
+function screenshot(): void {
   renderer.render( scene, camera );
 
   renderer.domElement.toBlob( ( blob ) => {
@@ -455,4 +462,31 @@ function screenshot() {
 
     window.open( url, '_blank' );
   }, 'image/png' );
+}
+
+function exportDAT(): void {
+  let datContent = 'Generated by NACA Airfoil Generator\n' + 
+    'NACA code: ' + config.naca + '\n';
+
+  const air = NACA( Number.parseInt(config.naca), {
+      c: config.chord,
+      s: config.sections,
+      cs: config.spacing === 'linear' ? 0 : 1,
+    } );
+
+  air.x_i.reverse();
+  air.y_i.reverse();
+
+  for ( let i = 0; i < air.x_i.length; i++ ) {
+    datContent += `${air.x_i[i].toFixed(6)} ${air.y_i[i].toFixed(6)}\n`;
+  }
+
+  for ( let i = 0; i < air.x_e.length; i++ ) {
+    datContent += `${air.x_e[i].toFixed(6)} ${air.y_e[i].toFixed(6)}\n`;
+  }
+
+  const blob = new Blob( [ datContent ], { type: 'text/plain' } );
+  const url = URL.createObjectURL( blob );
+
+  window.open( url, '_blank' );
 }

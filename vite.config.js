@@ -3,7 +3,6 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
     server: {
-      host: 'hayley-pc.moofie',
       allowedHosts: true,
     },
     build: { 
