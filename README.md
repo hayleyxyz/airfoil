@@ -1,5 +1,7 @@
 # NACA Airfoil generator
 
+[https://hayleyxyz.github.io/airfoil/](https://hayleyxyz.github.io/airfoil/)
+
 A [Three.js](https://github.com/mrdoob/three.js/) program that renders NACA airfoils from pre-provided .dat files, or generated from a NACA code.
 
 ![Screenshot](https://github.com/hayleyxyz/airfoil/blob/master/screenshot.png?raw=true)
