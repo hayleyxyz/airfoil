@@ -1,4 +1,8 @@
 {
+  "name": "airfoil",
+  "description": "NACA airfoil renderer using Three.js",
+  "version": "0.1.0",
+  "license": "MIT",
   "devDependencies": {
     "@types/three": "^0.182.0",
     "vite": "^7.1.12"
@@ -6,5 +10,9 @@
   "dependencies": {
     "lil-gui": "^0.21.0",
     "three": "^0.181.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hayleyxyz/airfoil"
   }
 }

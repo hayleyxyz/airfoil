@@ -1,6 +1,5 @@
-interface NACAOptions
+ interface NACAOptions
 {
-
     alpha?: number; // angle of attack in degrees
     c?: number;     // chord
     s?: number;     // number of points
