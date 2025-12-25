@@ -1,23 +1,14 @@
 {
     "compilerOptions": {
-      // other options...
-      "paths": {
-      },
+      "types": [
+        "vite/client",
+        "lil-gui"
+      ],
 
-      /* Base Options: */
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "target": "es2022",
-      "allowJs": true,
-      "resolveJsonModule": true,
-      "isolatedModules": true,
-
-      /* If transpiling with TypeScript: */
-      "module": "NodeNext",
-      "outDir": "dist",
-      "sourceMap": true,
+      "module": "es2022",
+    "moduleResolution": "Node",
 
       /* If your code runs in the DOM: */
-      "lib": ["es2022", "dom", "dom.iterable"],
+      "lib": ["es6", "dom", "dom.iterable"],
     }
   }

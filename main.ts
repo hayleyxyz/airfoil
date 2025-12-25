@@ -43,12 +43,12 @@ scene.add( axes );
 const meshGroup = new THREE.Group();
 scene.add( meshGroup );
 
-const map = new THREE.TextureLoader().load( 'textures/uv_grid_opengl.jpg' );
+const map = new THREE.TextureLoader().load( import.meta.env.BASE_URL + '/textures/uv_grid_opengl.jpg' );
 map.wrapS = map.wrapT = THREE.RepeatWrapping;
 map.anisotropy = 16;
 map.colorSpace = THREE.SRGBColorSpace;
 
-const path = 'textures/cube/pisa/';
+const path = import.meta.env.BASE_URL + '/textures/cube/pisa/';
 const urls = [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ];
 
 const textureCube = new THREE.CubeTextureLoader().setPath( path ).load( urls );
@@ -151,10 +151,10 @@ function loadGuiState(): void {
   if ( window.history.state ) {
     gui.load( window.history.state );
   } else if ( window.location.hash ) {
-    let payload = window.location.hash.substring( 1 );
-    payload = JSON.parse( decodeURIComponent( payload ) );
+    const payload = window.location.hash.substring( 1 );
+    const decoded = JSON.parse( decodeURIComponent( payload ) );
 
-    gui.load( payload );
+    gui.load( decoded );
   }
 }
 
@@ -217,7 +217,7 @@ function parseNacaDat( data: string ): THREE.Vector2[] {
 
 async function load( naca: string ): Promise<THREE.Vector2[]> {
   return new Promise( ( resolve, reject ) => {
-    loader.load(`airfoils/${naca}.dat`, function ( data: string ) {
+    loader.load(`${import.meta.env.BASE_URL}/airfoils/${naca}.dat`, function ( data: string ) {
       const points = parseNacaDat( data );
 
       resolve( points );

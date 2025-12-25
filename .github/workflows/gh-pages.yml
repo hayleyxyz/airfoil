@@ -21,7 +21,7 @@ jobs:
         run: yarn install
 
       - name: Build
-        run: yarn vite build
+        run: yarn vite build --base /airfoil
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
