@@ -1,4 +1,6 @@
-const nacaDatList = [
+type NacaDAT = string;
+
+const nacaDatList: Array<NacaDAT> = [
   '2032c-il', 'a18-il', 'a18sm-il', 'a63a108c-il', 'ag03-il', 'ag04-il',
   'ag08-il', 'ag09-il', 'ag10-il', 'ag11-il', 'ag12-il', 'ag13-il', 'ag14-il',
   'ag16-il', 'ag17-il', 'ag18-il', 'ag19-il', 'ag24-il', 'ag25-il', 'ag26-il',

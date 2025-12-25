@@ -16,7 +16,7 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.setAnimationLoop( animate );
 document.body.appendChild( renderer.domElement );
 
-window.addEventListener( 'resize', function( event: UIEvent ) {
+window.addEventListener( 'resize', function( event: UIEvent ): void {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 
@@ -43,12 +43,12 @@ scene.add( axes );
 const meshGroup = new THREE.Group();
 scene.add( meshGroup );
 
-const map = new THREE.TextureLoader().load( import.meta.env.BASE_URL + '/textures/uv_grid_opengl.jpg' );
+const map = new THREE.TextureLoader().load( resolveUrl( 'textures/uv_grid_opengl.jpg' ) );
 map.wrapS = map.wrapT = THREE.RepeatWrapping;
 map.anisotropy = 16;
 map.colorSpace = THREE.SRGBColorSpace;
 
-const path = import.meta.env.BASE_URL + '/textures/cube/pisa/';
+const path = resolveUrl( 'textures/cube/pisa/' );
 const urls = [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ];
 
 const textureCube = new THREE.CubeTextureLoader().setPath( path ).load( urls );
@@ -217,31 +217,12 @@ function parseNacaDat( data: string ): THREE.Vector2[] {
 
 async function load( naca: string ): Promise<THREE.Vector2[]> {
   return new Promise( ( resolve, reject ) => {
-    loader.load(`${import.meta.env.BASE_URL}/airfoils/${naca}.dat`, function ( data: string ) {
+    loader.load( resolveUrl( `airfoils/${naca}.dat` ), function ( data: string ) {
       const points = parseNacaDat( data );
 
       resolve( points );
     } );
   } );
-}
-
-function clearGroup( g ): void {
-  while ( g.children.length ) {
-    const c = g.children.pop();
-
-    if ( c.geometry ) {
-      c.geometry.dispose();
-    }
-
-    if ( c.material ) {
-      if ( Array.isArray( c.material ) ) {
-        c.material.forEach( ( m ) => m.dispose() );
-      }
-      else {
-        c.material.dispose();
-      }
-    }
-  }
 }
 
 function extrudeWithTwist( shape: THREE.Shape, span: number, twist: number, steps: number = 80 ): THREE.ExtrudeGeometry {
@@ -318,7 +299,7 @@ function scaleAlongZ( geometry: THREE.ExtrudeGeometry, rootScale: number, tipSca
 }
 
 function createFromPoints( points: THREE.Vector2[] ): void {
-  clearGroup( meshGroup );
+  meshGroup.clear();
 
   const shape = new THREE.Shape( points );
 
@@ -489,4 +470,11 @@ function exportDAT(): void {
   const url = URL.createObjectURL( blob );
 
   window.open( url, '_blank' );
+}
+
+function resolveUrl( path: string ): string {
+  const base = import.meta.env.BASE_URL.replace(/\/$/, ''); // Remove trailing /
+  path = path.replace(/^\//, ''); // Remove leading /
+
+  return base + '/' + path;
 }

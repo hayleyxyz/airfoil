@@ -1,4 +1,4 @@
-import nacaDatList from './airfoils/naca-dat-files.js';
+import nacaDatList from './naca-dat-files.ts';
 
 function exportJSArray(arr) {
     process.stdout.write('export default [\n ');
